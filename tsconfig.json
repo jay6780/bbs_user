@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
+    "skipLibCheck": true,
+    
+    //别名需要配置，否则TypeScript引入import别名引入报错
+    "baseUrl": "./",
+    "ignoreDeprecations":"6.0",//指定使用TypeScript 6.0之前版本屏蔽baseUrl和"moduleResolution=node参数过时提示
+    "paths": {
+      "@/*": ["./src/*"],
+      //"@components/*": ["./src/components/*"],
+
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/utils/markdownPlugin/remark-directive.ts", "src/utils/markdownPlugin/mdast-util-directive.js"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

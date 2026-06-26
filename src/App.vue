@@ -1,101 +1,100 @@
 <template>
-    <el-config-provider :locale="localLanguage">
-        <!--html页元信息-->
-        <metainfo>
-            <template v-slot:title="{ content }">{{ content }}</template>
-        </metainfo>
-        <router-view v-if="$store.state.supportAccessDevice == 1 || $store.state.supportAccessDevice == 2"></router-view>
+  <el-config-provider :locale="localLanguage">
+    <!--html页元信息-->
+    <metainfo>
+      <template v-slot:title="{ content }">{{ content }}</template>
+    </metainfo>
+    <router-view
+      v-if="
+        $store.state.supportAccessDevice == 1 ||
+        $store.state.supportAccessDevice == 2
+      "
+    ></router-view>
 
-        <div class="main backgroundModule" v-if="$store.state.supportAccessDevice != 1 && $store.state.supportAccessDevice != 2">
-            <!-- title:电脑端浏览入口已关闭  sub-title:请尝试使用手机端浏览器访问本站-->
-            <el-result icon="error" :title="i18n.t('app.10')" :sub-title="i18n.t('app.20')" >
-                <template #extra>
-                    <!-- 访问手机端网站-->
-                    <el-button type="primary" @click="setAccessMobile">{{i18n.t('app.30')}}</el-button>
-                </template>
-            </el-result>
-        </div>
-       
-    </el-config-provider>
+    <div
+      class="main backgroundModule"
+      v-if="
+        $store.state.supportAccessDevice != 1 &&
+        $store.state.supportAccessDevice != 2
+      "
+    >
+      <!-- title:电脑端浏览入口已关闭  sub-title:请尝试使用手机端浏览器访问本站-->
+      <el-result
+        icon="error"
+        :title="i18n.t('app.10')"
+        :sub-title="i18n.t('app.20')"
+      >
+        <template #extra>
+          <!-- 访问手机端网站-->
+          <el-button type="primary" @click="setAccessMobile">{{
+            i18n.t("app.30")
+          }}</el-button>
+        </template>
+      </el-result>
+    </div>
+  </el-config-provider>
 </template>
 <script setup lang="ts">
-    import { onMounted, getCurrentInstance, ComponentInternalInstance, watch, reactive, computed,} from 'vue'
-    import { AxiosResponse } from 'axios'
-    import { appStore } from "@/store";
-    import { ElConfigProvider } from 'element-plus'
+import {
+  onMounted,
+  getCurrentInstance,
+  ComponentInternalInstance,
+  watch,
+  reactive,
+  computed,
+} from "vue";
+import { AxiosResponse } from "axios";
+import { appStore } from "@/store";
+import { ElConfigProvider } from "element-plus";
 
-    //国际化
-    import language_zh_cn from 'element-plus/es/locale/lang/zh-cn'//中文
-    import language_en from 'element-plus/es/locale/lang/en'//英文
-    import { queryBaseInfo } from '@/utils/requestAPI';
-    import { useI18n } from 'vue-i18n';
+//国际化
+import language_zh_cn from "element-plus/es/locale/lang/zh-cn"; //中文
+import language_en from "element-plus/es/locale/lang/en"; //英文
+import { queryBaseInfo } from "@/utils/requestAPI";
+import { useI18n } from "vue-i18n";
 
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const store = appStore();
+let i18n = useI18n();
 
-    const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-    const store = appStore();
-    let i18n = useI18n();
+// 获取浏览器默认语言
+const getBrowserLang = () => {
+  let language = navigator.language; //访问浏览器的首选语言
+  if (language == "zh" || language.startsWith("zh-")) {
+    return "zh";
+  }
 
+  return "en";
+};
 
-    // 获取浏览器默认语言
-    const getBrowserLang = () => {
-        let language = navigator.language;//访问浏览器的首选语言
-        if(language == "zh" || language.startsWith("zh-")){
-            return "zh";
-        }
+const localLanguage = computed(() => {
+  // Read from localStorage first, then browser default
+  let languageCode = window.localStorage.getItem("language");
 
-        
-        return "en";
-    };
+  if (!languageCode) {
+    // Fall back to server default, then browser language
+    const def = store.state.defaultLanguage || "";
+    if (def.startsWith("zh")) {
+      languageCode = "zh";
+    } else if (def.startsWith("en")) {
+      languageCode = "en";
+    } else {
+      languageCode = getBrowserLang();
+    }
+  }
 
-  
-    const localLanguage = computed(() => {
+  // Normalize: "zh", "zh_CN", "zh-CN" → all become "zh"
+  const isZh = languageCode.startsWith("zh");
+  const lang = isZh ? "zh" : "en";
 
-        let languageCode = window.localStorage.getItem("language");
-        if(languageCode == null){//如果用户未设置语言
-            //如果前端设置了默认语言
-            if(store.state.defaultLanguage != null && store.state.defaultLanguage != ''){
-                if(store.state.defaultLanguage.startsWith("zh_")){
-                    store.state.currentLanguage = "zh";
-                    i18n.locale.value =  "zh";
-                    document.getElementsByTagName("html")[0].lang = 'zh';
-                    return language_zh_cn;
-                }
-                if(store.state.defaultLanguage.startsWith("en_")){
-                    store.state.currentLanguage = "en";
-                    i18n.locale.value =  "en";
-                    document.getElementsByTagName("html")[0].lang = 'en';
-                    return language_en;
-                }
-            }else{
-                if(getBrowserLang() == "zh"){
-                    store.state.currentLanguage = "zh";
-                    i18n.locale.value =  "zh";
-                    document.getElementsByTagName("html")[0].lang = 'zh';
-                    return language_zh_cn;
-                }
-                if(getBrowserLang() == "en"){
-                    store.state.currentLanguage = "en";
-                    i18n.locale.value =  "en";
-                    document.getElementsByTagName("html")[0].lang = 'en';
-                    return language_en;
-                }
-            }
-        }else{
-            if(languageCode.startsWith("zh_")){
-                store.state.currentLanguage = "zh";
-                i18n.locale.value =  "zh";
-                document.getElementsByTagName("html")[0].lang = 'zh';
-                return language_zh_cn;
-            }
-        }
-        
-        store.state.currentLanguage = "en";
-        i18n.locale.value =  "en";
-        document.getElementsByTagName("html")[0].lang = 'en';
-        return language_en;
-    });
+  store.state.currentLanguage = lang;
+  i18n.locale.value = lang;
+  document.getElementsByTagName("html")[0].lang = lang;
 
-    /**
+  return isZh ? language_zh_cn : language_en;
+});
+
+/**
      * 查询基本信息
     
     const queryBaseInfo = () => {
@@ -140,25 +139,23 @@
 
     }**/
 
-    //设置访问手机端(需要配合Nginx使用，Nginx配置文件加入判断Cookie值是否为mobile)
-    const setAccessMobile = () => {
-        //accessModule: pc 或 mobile
-        document.cookie = "accessModule=mobile;path=/";
-        window.location.reload();
-    }
+//设置访问手机端(需要配合Nginx使用，Nginx配置文件加入判断Cookie值是否为mobile)
+const setAccessMobile = () => {
+  //accessModule: pc 或 mobile
+  document.cookie = "accessModule=mobile;path=/";
+  window.location.reload();
+};
 
+//监听到用户信息版本号变化时执行刷新登录用户信息
+watch(
+  () => store.state.userInfoVersion,
+  (val, old) => {
+    //查询基本信息(基本信息包含登录用户信息)
 
-    //监听到用户信息版本号变化时执行刷新登录用户信息
-    watch(() => store.state.userInfoVersion, (val, old) => {
-        //查询基本信息(基本信息包含登录用户信息)
-        
-        queryBaseInfo();
-   
-    })
-    onMounted(() => {
-        queryBaseInfo();
-        
-    }) 
-
+    queryBaseInfo();
+  },
+);
+onMounted(() => {
+  queryBaseInfo();
+});
 </script>
-

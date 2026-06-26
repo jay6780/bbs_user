@@ -310,6 +310,7 @@ import {
   watch,
 } from "vue";
 import { ElAffix } from "element-plus";
+import i18n from "../locale/index";
 import {
   Column,
   LanguageSwitchingOptions,
@@ -523,22 +524,23 @@ const onLogout = () => {
     .then((response: AxiosResponse) => {
       if (response) {
         const result: any = response.data;
-
         if (result.success) {
-          //成功
           let jumpUrl = result.jumpUrl;
 
-          //清理登录信息
-          window.localStorage.clear(); //清空sessionStorage中所有信息
-          store.commit("setSystemUser", {});
+          // ← Save language BEFORE clearing localStorage
+          const savedLang = window.localStorage.getItem("language");
+          window.localStorage.clear();
+          if (savedLang) {
+            window.localStorage.setItem("language", savedLang);
+          }
 
+          store.commit("setSystemUser", {});
           if (jumpUrl != null) {
             router.push(jumpUrl);
           } else {
             router.push("/");
           }
         } else {
-          //处理错误信息
           processErrorInfo(result.error as Map<string, string>, {}, () => {});
         }
       }
@@ -587,26 +589,17 @@ const timerUnreadMessage = () => {
 
 //选择语言
 const selectLanguage = (languageSwitchingOptions: LanguageSwitchingOptions) => {
-  window.localStorage.setItem("language", languageSwitchingOptions.code);
-  window.location.reload();
+  const code = languageSwitchingOptions.code; // "zh" or "en"
+  window.localStorage.setItem("language", code);
+  window.location.reload(); // Full reload picks up new locale
 };
 //设置多语言切换
 // 设置多语言切换 — REPLACE the existing setLanguageSwitching function
+// In Header.vue — update setLanguageSwitching to also sync i18n locale
 const setLanguageSwitching = () => {
   const savedLang = window.localStorage.getItem("language") || "zh";
 
-  // Always use hardcoded options as the source of truth
-  state.languageSwitchingOptions = [
-    { code: "en", name: "English", selected: savedLang === "en" },
-    { code: "zh", name: "中文", selected: savedLang === "zh" },
-  ];
-  state.isSelectedLanguage = true;
-
-  // If store has language data, merge it on top
-  if (
-    store.state.languageSwitching != null &&
-    store.state.languageSwitching.size > 0
-  ) {
+  if (store.state.languageSwitching?.size > 0) {
     state.languageSwitchingOptions = [];
     for (let [key, value] of store.state.languageSwitching) {
       state.languageSwitchingOptions.push({
@@ -615,7 +608,14 @@ const setLanguageSwitching = () => {
         selected: key === savedLang,
       });
     }
+  } else {
+    // Default options
+    state.languageSwitchingOptions = [
+      { code: "en", name: "English", selected: savedLang === "en" },
+      { code: "zh", name: "中文", selected: savedLang === "zh" },
+    ];
   }
+  state.isSelectedLanguage = true;
 };
 //监听到切换语言变化时执行刷新
 watch(

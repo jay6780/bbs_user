@@ -1,183 +1,232 @@
 * {
-	word-wrap: break-word;
-	margin: 0;
+    word-wrap: break-word;
+    margin: 0;
     padding: 0;
 }
 
 body {
-	color: #4E5969;
-	background: #F7F8FA;
+    color: #4E5969;
+    background: #F7F8FA;
 }
 
 body,select {
-	font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB','Microsoft YaHei', '微软雅黑', Arial, sans-serif;
-	font-size: 14px;
-	line-height:1.5;
-	color: #4E5969;
+    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB','Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+    font-size: 14px;
+    line-height:1.5;
+    color: #4E5969;
 }
 
 textarea {
-	resize: none;
+    resize: none;
 }
 
 body,ul,ol,li,dl,dd,p,h1,h2,h3,h4,h5,h6,form,fieldset{
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 table {
-	empty-cells: show;
-	border-collapse: collapse;
+    empty-cells: show;
+    border-collapse: collapse;
 }
 
 caption,th {
-	text-align: left;
-	font-weight: 400;
+    text-align: left;
+    font-weight: 400;
 }
 
 ul li{
-	list-style: none;
+    list-style: none;
 }
 
-
 h1,h2,h3,h4,h5,h6 {
-	font-size: 1em;
+    font-size: 1em;
 }
 
 cite,i {
-	font-style: normal;
+    font-style: normal;
 }
 
 a img {
-	border: none;
+    border: none;
 }
 
 label {
-	cursor: pointer;
+    cursor: pointer;
 }
 
-
 body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td,hr{
-	margin: 0;
-	padding: 0;
+    margin: 0;
+    padding: 0;
 }
 
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
 caption,th {
-	text-align: left;
-	font-weight: normal;
+    text-align: left;
+    font-weight: normal;
 }
 
 html,body,fieldset,img,iframe,abbr {
-	border: 0;
+    border: 0;
 }
 
 html {
-	-webkit-text-size-adjust: 100%;
-	-ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
 }
-
 
 ol,ul,li {
-	list-style: none;
+    list-style: none;
 }
-/**
-h1,h2,h3,h4,h5,h6,small {
-	font-size: 100%;
-	font-weight: normal
-}**/
 
 textarea {
-	overflow: auto;
-	resize: none;
+    overflow: auto;
+    resize: none;
 }
 
 label {
-	cursor: default;
+    cursor: default;
 }
 
 a,button {
-	cursor: pointer;
+    cursor: pointer;
 }
 a {
-	outline: none;
-	text-decoration: none;
-	color: #A9AEB8;
+    outline: none;
+    text-decoration: none;
+    color: #A9AEB8;
 }
 
 a:hover {
-	text-decoration: none;
-	color: #409eff;
+    text-decoration: none;
+    color: #409eff;
 }
 ul {
-	list-style: none;
-	margin: 0px;
-	padding: 0px;
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
 }
 html,body{
-	margin:0;
-	padding:0;
-	height: 100%;
+    margin:0;
+    padding:0;
+    height: 100%;
 }
 *:focus { outline: none; }
 
 .clearfix {
-	zoom: 1;
+    zoom: 1;
 }
 .clearfix:after {
-	content: ".";
-	display: block;
-	height: 0;
-	clear: both;
-	visibility: hidden;
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
 }
 .clear{clear:both;height:0px;overflow:hidden;padding:0px;margin:0px;}
 
-
-
-
-
 /* 正文 */
 .main{
-	flex-grow: 1;
+    flex-grow: 1;
     flex-shrink: 0;
-	
 }
 .main-container{
-	margin:0 auto;
-	margin-top:0px;
+    margin:0 auto;
+    margin-top:0px;
 }
 .main-fullScreen{
-	/*min-height: calc(100vh - 170px)*/
-	height: 100%;
+    height: 100%;
 }
-
-
-
 
 /* 背景 */
 .backgroundModule{
-	background: #fff; 
-	box-shadow: 0 0px 3px 0 rgba(0,0,0,.02), 0 4px 8px 0 rgba(0,0,0,.02);
-	border-radius: 8px;
+    background: #fff; 
+    box-shadow: 0 0px 3px 0 rgba(0,0,0,.02), 0 4px 8px 0 rgba(0,0,0,.02);
+    border-radius: 8px;
 }
-.wrap{width:1210px;}
 
 .first-radius {
     border-radius: 0px 8px 8px;
 }
 
 #app{
-	display: flex;
+    display: flex;
     flex-direction: column;
     width: 100%;
-    /*min-height: 100%;*/
-	height: 100%;
+    height: 100%;
 }
 
+/* ==========================================================================
+   RESPONSIVE LAYOUT RESPONSIVENESS SYSTEM
+   ========================================================================== */
 
+/* Desktop Display Settings */
+@media screen and (min-width: 769px) {
+    .wrap {
+        width: 1210px;
+    }
+}
 
+/* Mobile & Touch View Layout Override Engines */
+@media screen and (max-width: 768px) {
+    /* 1. Eliminate fixed layout widths */
+    .wrap, 
+    .main-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        padding: 0 8px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 2. Break grid columns into vertical block rows */
+    .el-row, 
+    .grid-layout, 
+    .flex-layout {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+
+    /* 3. Give full screen utility to internal components */
+    .el-col, 
+    [class*="el-col-"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-bottom: 10px;
+    }
+
+    /* 4. Drop non-critical structural sidebar components */
+    .left-sidebar, 
+    .right-sidebar, 
+    aside, 
+    .desktop-only, 
+    .right-module {
+        display: none !important;
+    }
+
+    /* 5. Fluid asset safety restraints */
+    .main img, 
+    .post-content img,
+    .el-result img {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* 6. Touch-optimized sub-menu scrolling mechanism */
+    .header .nav, 
+    .menu-container,
+    .el-tabs__nav {
+        display: flex !important;
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch;
+    }
+}

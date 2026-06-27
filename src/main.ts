@@ -57,7 +57,7 @@ app.config.globalProperties.$axios=axiosInstance;
 app.use(i18n)//
 
 //查询基本信息
-//queryBaseInfo();
+queryBaseInfo();
 // AI助手弹窗
 app.config.globalProperties.$aiAssistantDialog = CreateAiAssistantDialog;
 

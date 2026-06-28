@@ -4,18 +4,22 @@
     <metainfo>
       <template v-slot:title="{ content }">{{ content }}</template>
     </metainfo>
+
+    <!-- Changed condition: If it's authorized or forced to mobile display layout, mount views -->
     <router-view
       v-if="
         $store.state.supportAccessDevice == 1 ||
-        $store.state.supportAccessDevice == 2
+        $store.state.supportAccessDevice == 2 ||
+        isMobileDevice
       "
     ></router-view>
 
     <div
       class="main backgroundModule"
-      v-if="
+      v-else-if="
         $store.state.supportAccessDevice != 1 &&
-        $store.state.supportAccessDevice != 2
+        $store.state.supportAccessDevice != 2 &&
+        !isMobileDevice
       "
     >
       <!-- title:电脑端浏览入口已关闭  sub-title:请尝试使用手机端浏览器访问本站-->
@@ -26,53 +30,66 @@
       >
         <template #extra>
           <!-- 访问手机端网站-->
-          <el-button type="primary" @click="setAccessMobile">{{
-            i18n.t("app.30")
-          }}</el-button>
+          <el-button type="primary" @click="setAccessMobile">
+            {{ i18n.t("app.30") }}
+          </el-button>
         </template>
       </el-result>
     </div>
   </el-config-provider>
 </template>
+
 <script setup lang="ts">
 import {
   onMounted,
   getCurrentInstance,
   ComponentInternalInstance,
   watch,
-  reactive,
   computed,
+  ref,
 } from "vue";
-import { AxiosResponse } from "axios";
 import { appStore } from "@/store";
 import { ElConfigProvider } from "element-plus";
 
-//国际化
-import language_zh_cn from "element-plus/es/locale/lang/zh-cn"; //中文
-import language_en from "element-plus/es/locale/lang/en"; //英文
+// 国际化
+import language_zh_cn from "element-plus/es/locale/lang/zh-cn"; // 中文
+import language_en from "element-plus/es/locale/lang/en"; // 英文
 import { queryBaseInfo } from "@/utils/requestAPI";
 import { useI18n } from "vue-i18n";
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const store = appStore();
 let i18n = useI18n();
 
+// Real-time local verification for actual mobile layouts
+const isMobileDevice = ref(false);
+
+const checkDeviceType = () => {
+  const userAgent =
+    navigator.userAgent || navigator.vendor || (window as any).opera;
+  const isMobileRegex =
+    /android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge\ |maemo|midp|mmp|mobile.+firefox|netfront|opera\ m(ob|in)i|palm(\ os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows\ ce|xda|xiino/i;
+
+  // Also checks cookie set by the button action
+  const hasMobileCookie = document.cookie
+    .split("; ")
+    .some((row) => row.startsWith("accessModule=mobile"));
+
+  isMobileDevice.value = isMobileRegex.test(userAgent) || hasMobileCookie;
+};
+
 // 获取浏览器默认语言
 const getBrowserLang = () => {
-  let language = navigator.language; //访问浏览器的首选语言
+  let language = navigator.language;
   if (language == "zh" || language.startsWith("zh-")) {
     return "zh";
   }
-
   return "en";
 };
 
 const localLanguage = computed(() => {
-  // Read from localStorage first, then browser default
   let languageCode = window.localStorage.getItem("language");
 
   if (!languageCode) {
-    // Fall back to server default, then browser language
     const def = store.state.defaultLanguage || "";
     if (def.startsWith("zh")) {
       languageCode = "zh";
@@ -83,7 +100,6 @@ const localLanguage = computed(() => {
     }
   }
 
-  // Normalize: "zh", "zh_CN", "zh-CN" → all become "zh"
   const isZh = languageCode.startsWith("zh");
   const lang = isZh ? "zh" : "en";
 
@@ -94,68 +110,21 @@ const localLanguage = computed(() => {
   return isZh ? language_zh_cn : language_en;
 });
 
-/**
-     * 查询基本信息
-    
-    const queryBaseInfo = () => {
-        proxy?.$axios({
-            url: '/baseInfo',
-            method: 'get',
-            params:  {
-            },
-            showLoading: false,//是否显示加载图标
-            loadingMask:false,// 是否显示遮罩层
-        })
-        .then((response: AxiosResponse) => {
-            const result: any = response.data;
-            if(result){
-                setTimeout(function () {
-                let resultData = JSON.parse(result);
-                store.commit('setBaseURL', resultData.baseURL);
-                store.commit('setCommonPath', resultData.commonPath);
-                store.commit('setContextPath', resultData.contextPath);
-                store.commit('setTemplateDir', resultData.templateDir);
-                store.commit('setTitle', resultData.title);
-                store.commit('setKeywords', resultData.keywords);
-                store.commit('setDescription', resultData.description);
-                if(resultData.systemUser != null){
-                    store.commit('setSystemUser', resultData.systemUser);
-                }
-                store.commit('setBaseURI', resultData.baseURI);
-                store.commit('setFileStorageSystem', resultData.fileStorageSystem);
-                store.commit('setSupportAccessDevice', resultData.supportAccessDevice);
-                store.commit('setWeixin_oa_appid', resultData.weixin_oa_appid);
-                }, 3000);
-                
-  
-               
-                
-
-            }
-
-        }).catch((error: any) =>{
-            console.log(error);
-        });
-
-    }**/
-
-//设置访问手机端(需要配合Nginx使用，Nginx配置文件加入判断Cookie值是否为mobile)
 const setAccessMobile = () => {
-  //accessModule: pc 或 mobile
-  document.cookie = "accessModule=mobile;path=/";
+  document.cookie = "accessModule=mobile; max-age=31536000; path=/";
+  isMobileDevice.value = true;
   window.location.reload();
 };
 
-//监听到用户信息版本号变化时执行刷新登录用户信息
 watch(
   () => store.state.userInfoVersion,
-  (val, old) => {
-    //查询基本信息(基本信息包含登录用户信息)
-
+  () => {
     queryBaseInfo();
   },
 );
+
 onMounted(() => {
+  checkDeviceType();
   queryBaseInfo();
 });
 </script>
